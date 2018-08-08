@@ -28,33 +28,33 @@ import (
 )
 
 func (cc *Controller) addJob(obj interface{}) {
-	qj, ok := obj.(*vuclanapi.Job)
+	job, ok := obj.(*vuclanapi.Job)
 	if !ok {
-		glog.Errorf("obj is not QueueJob")
+		glog.Errorf("obj is not Job")
 		return
 	}
 
-	cc.enqueue(qj)
+	cc.enqueue(job)
 }
 
 func (cc *Controller) updateJob(oldObj, newObj interface{}) {
-	newQJ, ok := newObj.(*vuclanapi.Job)
+	newJob, ok := newObj.(*vuclanapi.Job)
 	if !ok {
-		glog.Errorf("newObj is not QueueJob")
+		glog.Errorf("newObj is not Job")
 		return
 	}
 
-	cc.enqueue(newQJ)
+	cc.enqueue(newJob)
 }
 
 func (cc *Controller) deleteJob(obj interface{}) {
-	qj, ok := obj.(*vuclanapi.Job)
+	job, ok := obj.(*vuclanapi.Job)
 	if !ok {
-		glog.Errorf("obj is not QueueJob")
+		glog.Errorf("obj is not Job")
 		return
 	}
 
-	cc.enqueue(qj)
+	cc.enqueue(job)
 }
 
 func (cc *Controller) addPod(obj interface{}) {
@@ -94,15 +94,15 @@ func (cc *Controller) deletePod(obj interface{}) {
 		return
 	}
 
-	queuejobs, err := cc.jobLister.List(labels.Everything())
+	jobs, err := cc.jobLister.List(labels.Everything())
 	if err != nil {
-		glog.Errorf("Failed to list QueueJobs for Pod %v/%v", pod.Namespace, pod.Name)
+		glog.Errorf("Failed to list Jobs for Pod %v/%v", pod.Namespace, pod.Name)
 	}
 
 	ctl := helpers.GetController(pod)
-	for _, qj := range queuejobs {
-		if qj.UID == ctl {
-			cc.enqueue(qj)
+	for _, job := range jobs {
+		if job.UID == ctl {
+			cc.enqueue(job)
 			break
 		}
 	}
@@ -111,6 +111,6 @@ func (cc *Controller) deletePod(obj interface{}) {
 func (cc *Controller) enqueue(obj interface{}) {
 	err := cc.eventQueue.Add(obj)
 	if err != nil {
-		glog.Errorf("Fail to enqueue QueueJob to updateQueue, err %#v", err)
+		glog.Errorf("Fail to enqueue Job to update queue, err %#v", err)
 	}
 }

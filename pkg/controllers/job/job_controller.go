@@ -108,20 +108,20 @@ func (cc *Controller) Run(stopCh <-chan struct{}) {
 
 func (cc *Controller) worker() {
 	if _, err := cc.eventQueue.Pop(func(obj interface{}) error {
-		var queuejob *vuclanapi.Job
+		var job *vuclanapi.Job
 		switch v := obj.(type) {
 		case *vuclanapi.Job:
-			queuejob = v
+			job = v
 		case *v1.Pod:
-			queuejobs, err := cc.jobLister.List(labels.Everything())
+			jobs, err := cc.jobLister.List(labels.Everything())
 			if err != nil {
 				glog.Errorf("Failed to list QueueJobs for Pod %v/%v", v.Namespace, v.Name)
 			}
 
 			ctl := helpers.GetController(v)
-			for _, qj := range queuejobs {
-				if qj.UID == ctl {
-					queuejob = qj
+			for _, j := range jobs {
+				if j.UID == ctl {
+					job = j
 					break
 				}
 			}
@@ -131,7 +131,7 @@ func (cc *Controller) worker() {
 			return nil
 		}
 
-		if queuejob == nil {
+		if job == nil {
 			if acc, err := meta.Accessor(obj); err != nil {
 				glog.Warningf("Failed to get QueueJob for %v/%v", acc.GetNamespace(), acc.GetName())
 			}
@@ -140,8 +140,8 @@ func (cc *Controller) worker() {
 		}
 
 		// sync Pods for a QueueJob
-		if err := cc.syncQueueJob(queuejob); err != nil {
-			glog.Errorf("Failed to sync QueueJob %s, err %#v", queuejob.Name, err)
+		if err := cc.syncJob(job); err != nil {
+			glog.Errorf("Failed to sync QueueJob %s, err %#v", job.Name, err)
 			// If any error, requeue it.
 			return err
 		}
@@ -153,7 +153,7 @@ func (cc *Controller) worker() {
 	}
 }
 
-func (cc *Controller) syncQueueJob(qj *vuclanapi.Job) error {
+func (cc *Controller) syncJob(qj *vuclanapi.Job) error {
 	queueJob, err := cc.jobLister.Jobs(qj.Namespace).Get(qj.Name)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -163,32 +163,32 @@ func (cc *Controller) syncQueueJob(qj *vuclanapi.Job) error {
 		return err
 	}
 
-	pods, err := cc.getPodsForQueueJob(queueJob)
+	pods, err := cc.getPodsForJob(queueJob)
 	if err != nil {
 		return err
 	}
 
-	return cc.manageQueueJob(queueJob, pods)
+	return cc.manageJob(queueJob, pods)
 }
 
-func (cc *Controller) getPodsForQueueJob(qj *vuclanapi.Job) (map[string][]*v1.Pod, error) {
+func (cc *Controller) getPodsForJob(job *vuclanapi.Job) (map[string][]*v1.Pod, error) {
 	pods := map[string][]*v1.Pod{}
 
-	for _, ts := range qj.Spec.TaskSpecs {
+	for _, ts := range job.Spec.TaskSpecs {
 		selector, err := metav1.LabelSelectorAsSelector(ts.Selector)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't convert QueueJob selector: %v", err)
 		}
 
 		// List all pods under QueueJob
-		ps, err := cc.podListr.Pods(qj.Namespace).List(selector)
+		ps, err := cc.podListr.Pods(job.Namespace).List(selector)
 		if err != nil {
 			return nil, err
 		}
 
 		// TODO (projectvulcan): optimic by cache
 		for _, pod := range ps {
-			if !metav1.IsControlledBy(pod, qj) {
+			if !metav1.IsControlledBy(pod, job) {
 				continue
 			}
 			// Hash by TaskSpec.Template.Name
@@ -199,9 +199,9 @@ func (cc *Controller) getPodsForQueueJob(qj *vuclanapi.Job) (map[string][]*v1.Po
 	return pods, nil
 }
 
-// manageQueueJob is the core method responsible for managing the number of running
+// manageJob is the core method responsible for managing the number of running
 // pods according to what is specified in the job.Spec.
-func (cc *Controller) manageQueueJob(qj *vuclanapi.Job, pods map[string][]*v1.Pod) error {
+func (cc *Controller) manageJob(job *vuclanapi.Job, pods map[string][]*v1.Pod) error {
 	var err error
 
 	runningSum := int32(0)
@@ -209,7 +209,7 @@ func (cc *Controller) manageQueueJob(qj *vuclanapi.Job, pods map[string][]*v1.Po
 	succeededSum := int32(0)
 	failedSum := int32(0)
 
-	for _, ts := range qj.Spec.TaskSpecs {
+	for _, ts := range job.Spec.TaskSpecs {
 		replicas := ts.Replicas
 		name := ts.Template.Name
 
@@ -224,11 +224,11 @@ func (cc *Controller) manageQueueJob(qj *vuclanapi.Job, pods map[string][]*v1.Po
 		failedSum += failed
 
 		glog.V(3).Infof("There are %d pods of QueueJob %s (%s): replicas %d, pending %d, running %d, succeeded %d, failed %d",
-			len(pods), qj.Name, name, replicas, pending, running, succeeded, failed)
+			len(pods), job.Name, name, replicas, pending, running, succeeded, failed)
 
 		// Create pod if necessary
 		if diff := replicas - pending - running - succeeded; diff > 0 {
-			glog.V(3).Infof("Try to create %v Pods for QueueJob %v/%v", diff, qj.Namespace, qj.Name)
+			glog.V(3).Infof("Try to create %v Pods for QueueJob %v/%v", diff, job.Namespace, job.Name)
 
 			var errs []error
 			wait := sync.WaitGroup{}
@@ -236,14 +236,14 @@ func (cc *Controller) manageQueueJob(qj *vuclanapi.Job, pods map[string][]*v1.Po
 			for i := int32(0); i < diff; i++ {
 				go func(ix int32) {
 					defer wait.Done()
-					newPod := createJobPod(qj, &ts.Template, ix)
+					newPod := createJobPod(job, &ts.Template, ix)
 					_, err := cc.kubeClients.Core().Pods(newPod.Namespace).Create(newPod)
 					if err != nil {
 						// Failed to create Pod, wait a moment and then create it again
 						// This is to ensure all pods under the same QueueJob created
 						// So gang-scheduling could schedule the QueueJob successfully
 						glog.Errorf("Failed to create pod %s for QueueJob %s, err %#v",
-							newPod.Name, qj.Name, err)
+							newPod.Name, job.Name, err)
 						errs = append(errs, err)
 					}
 				}(i)
@@ -256,18 +256,18 @@ func (cc *Controller) manageQueueJob(qj *vuclanapi.Job, pods map[string][]*v1.Po
 		}
 	}
 
-	qj.Status = vuclanapi.JobStatus{
+	job.Status = vuclanapi.JobStatus{
 		Pending:      pendingSum,
 		Running:      runningSum,
 		Succeeded:    succeededSum,
 		Failed:       failedSum,
-		MinAvailable: int32(qj.Spec.MinAvailable),
+		MinAvailable: int32(job.Spec.MinAvailable),
 	}
 
 	// TODO(projectvulcan): replaced it with `UpdateStatus`
-	if _, err := cc.vuclanClients.CoreV1alpha1().Jobs(qj.Namespace).Update(qj); err != nil {
+	if _, err := cc.vuclanClients.CoreV1alpha1().Jobs(job.Namespace).Update(job); err != nil {
 		glog.Errorf("Failed to update status of QueueJob %v/%v: %v",
-			qj.Namespace, qj.Name, err)
+			job.Namespace, job.Name, err)
 		return err
 	}
 
