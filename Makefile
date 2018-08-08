@@ -1,6 +1,6 @@
 BIN_DIR=_output/bin
 
-all: controllers scheduler
+all: controllers scheduler cli
 
 init:
 	mkdir -p ${BIN_DIR}
@@ -10,6 +10,9 @@ controllers:
 
 scheduler:
 	go build -o ${BIN_DIR}/scheduler ./cmd/scheduler
+
+cli:
+	go build -o ${BIN_DIR}/vctl ./cmd/cli
 
 verify: generate-code
 	hack/verify-gofmt.sh
