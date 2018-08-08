@@ -18,10 +18,11 @@ package job
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/kubernetes-incubator/kube-arbitrator/pkg/client/clientset"
-	"github.com/spf13/cobra"
+	"github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
 )
 
 type listFlags struct {
@@ -44,29 +45,28 @@ func ListJobs() error {
 		return err
 	}
 
-	queueClient := clientset.NewForConfigOrDie(config)
-
-	queueJobs, err := queueClient.ArbV1().QueueJobs(listJobFlags.Namespace).List(metav1.ListOptions{})
+	jobClient := versioned.NewForConfigOrDie(config)
+	jobs, err := jobClient.Core().Jobs(listJobFlags.Namespace).List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
 
-	if len(queueJobs.Items) == 0 {
+	if len(jobs.Items) == 0 {
 		fmt.Printf("No resources found\n")
 		return nil
 	}
 
 	fmt.Printf("%-30s%-25s%-12s%-8s%-12s%-12s%-12s%-12s\n",
 		"Name", "Creation", "Replicas", "Min", "Pending", "Running", "Succeeded", "Failed")
-	for _, qj := range queueJobs.Items {
+	for _, job := range jobs.Items {
 		replicas := int32(0)
-		for _, ts := range qj.Spec.TaskSpecs {
+		for _, ts := range job.Spec.TaskSpecs {
 			replicas += ts.Replicas
 		}
 
 		fmt.Printf("%-30s%-25s%-12d%-8d%-12d%-12d%-12d%-12d\n",
-			qj.Name, qj.CreationTimestamp.Format("2006-01-02 15:04:05"), replicas,
-			qj.Status.MinAvailable, qj.Status.Pending, qj.Status.Running, qj.Status.Succeeded, qj.Status.Failed)
+			job.Name, job.CreationTimestamp.Format("2006-01-02 15:04:05"), replicas,
+			job.Status.MinAvailable, job.Status.Pending, job.Status.Running, job.Status.Succeeded, job.Status.Failed)
 	}
 
 	return nil

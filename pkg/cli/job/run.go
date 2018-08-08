@@ -21,8 +21,8 @@ import (
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	arbv1 "github.com/kubernetes-incubator/kube-arbitrator/pkg/apis/v1alpha1"
-	"github.com/kubernetes-incubator/kube-arbitrator/pkg/client/clientset"
+	vuclanapi "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
+	"github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
 )
 
 type runFlags struct {
@@ -50,7 +50,7 @@ func InitRunFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&launchJobFlags.Requests, "requests", "", "cpu=1000m,memory=100Mi", "the resource request of the task")
 }
 
-var queueJobName = "queuejob.arbitrator.k8s.io"
+var jobName = "job.projectvulcan.org"
 
 func RunJob() error {
 	config, err := buildConfig(launchJobFlags.Master, launchJobFlags.Kubeconfig)
@@ -58,27 +58,23 @@ func RunJob() error {
 		return err
 	}
 
-	queueClient := clientset.NewForConfigOrDie(config)
-
 	req, err := populateResourceListV1(launchJobFlags.Requests)
 	if err != nil {
 		return err
 	}
 
-	qj := &arbv1.QueueJob{
+	job := &vuclanapi.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      launchJobFlags.Name,
 			Namespace: launchJobFlags.Namespace,
 		},
-		Spec: arbv1.QueueJobSpec{
-			SchedSpec: arbv1.SchedulingSpecTemplate{
-				MinAvailable: launchJobFlags.MinAvailable,
-			},
-			TaskSpecs: []arbv1.TaskSpec{
+		Spec: vuclanapi.JobSpec{
+			MinAvailable: int32(launchJobFlags.MinAvailable),
+			TaskSpecs: []vuclanapi.TaskSpec{
 				{
 					Selector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
-							queueJobName: launchJobFlags.Name,
+							jobName: launchJobFlags.Name,
 						},
 					},
 					Replicas: int32(launchJobFlags.Replicas),
@@ -86,7 +82,7 @@ func RunJob() error {
 					Template: v1.PodTemplateSpec{
 						ObjectMeta: metav1.ObjectMeta{
 							Name:   launchJobFlags.Name,
-							Labels: map[string]string{queueJobName: launchJobFlags.Name},
+							Labels: map[string]string{jobName: launchJobFlags.Name},
 						},
 						Spec: v1.PodSpec{
 							SchedulerName: launchJobFlags.SchedulerName,
@@ -108,7 +104,8 @@ func RunJob() error {
 		},
 	}
 
-	if _, err := queueClient.ArbV1().QueueJobs(launchJobFlags.Namespace).Create(qj); err != nil {
+	jobClient := versioned.NewForConfigOrDie(config)
+	if _, err := jobClient.Core().Jobs(launchJobFlags.Namespace).Create(job); err != nil {
 		return err
 	}
 
