@@ -1,3 +1,3 @@
 # Vulcan
 
-A Kubernetes-based Batch System for ML/BigData/HPC
+A Kubernetes-based Batch System for high performance workload.
