@@ -16,6 +16,10 @@ limitations under the License.
 
 package api
 
+import (
+	arbcorev1 "github.com/kubernetes-incubator/kube-arbitrator/pkg/apis/scheduling/v1alpha1"
+)
+
 // TaskStatus defines the status of a task/pod.
 type TaskStatus int
 
@@ -90,3 +94,15 @@ type ValidateFn func(interface{}) bool
 
 // PredicateFn is the func declaration used to predicate node for task.
 type PredicateFn func(*TaskInfo, *NodeInfo) error
+
+// Reason represents the detail info of an event.
+type Reason struct {
+	Event   arbcorev1.Event
+	Message string
+}
+
+// ReclaimableFn is the func declaration used to reclaim tasks.
+type ReclaimableFn func(*TaskInfo, []*TaskInfo) []*TaskInfo
+
+// PreemptableFn is the func declaration used to reclaim tasks.
+type PreemptableFn func(*TaskInfo, []*TaskInfo) []*TaskInfo

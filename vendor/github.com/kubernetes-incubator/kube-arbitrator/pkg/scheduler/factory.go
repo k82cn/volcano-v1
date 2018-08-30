@@ -19,21 +19,29 @@ package scheduler
 import (
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/actions/allocate"
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/actions/preempt"
+	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/actions/reclaim"
 
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/plugins/drf"
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/plugins/gang"
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/plugins/nodeaffinity"
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/plugins/priority"
+	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/plugins/proportion"
 
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/framework"
 )
 
 func init() {
+	// Plugins for Jobs
 	framework.RegisterPluginBuilder("priority", priority.New)
 	framework.RegisterPluginBuilder("gang", gang.New)
 	framework.RegisterPluginBuilder("drf", drf.New)
 	framework.RegisterPluginBuilder("nodeaffinity", nodeaffinity.New)
 
+	// Plugins for Queues
+	framework.RegisterPluginBuilder("proportion", proportion.New)
+
+	// Actions
+	framework.RegisterAction(reclaim.New())
 	framework.RegisterAction(allocate.New())
 	framework.RegisterAction(preempt.New())
 }
