@@ -62,7 +62,7 @@ func main() {
 
 	// Override defaults.
 	arguments.OutputFileBaseName = "deepcopy_generated"
-	arguments.GoHeaderFilePath = filepath.Join(args.DefaultSourceTree(), "github.com/k82cn/vulcan/hack/boilerplate/boilerplate.go.txt")
+	arguments.GoHeaderFilePath = filepath.Join(args.DefaultSourceTree(), "github.com/projectvulcan/vulcan/hack/boilerplate/boilerplate.go.txt")
 
 	// Custom args.
 	customArgs := &generators.CustomArgs{}
