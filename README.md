@@ -1,3 +1,3 @@
 # Volcano
 
-A Kubernetes-based Batch System for high performance workload.
+A Kubernetes-based system for high performance workload.
