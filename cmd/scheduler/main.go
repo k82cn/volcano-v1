@@ -28,8 +28,8 @@ import (
 
 	_ "volcanoproj.org/volcano/pkg/scheduler/algorithm"
 
-	"github.com/kubernetes-incubator/kube-arbitrator/cmd/kar-scheduler/app"
-	"github.com/kubernetes-incubator/kube-arbitrator/cmd/kar-scheduler/app/options"
+	"github.com/kubernetes-sigs/kube-batch/cmd/kube-batch/app"
+	"github.com/kubernetes-sigs/kube-batch/cmd/kube-batch/app/options"
 )
 
 var logFlushFreq = pflag.Duration("log-flush-frequency", 5*time.Second, "Maximum number of seconds between log flushes")

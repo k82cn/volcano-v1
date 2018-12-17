@@ -19,14 +19,14 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
-	corev1alpha1 "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned/typed/core/v1alpha1"
-	fakecorev1alpha1 "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned/typed/core/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
+	clientset "volcanoproj.org/volcano/pkg/client/clientset/versioned"
+	corev1alpha1 "volcanoproj.org/volcano/pkg/client/clientset/versioned/typed/core/v1alpha1"
+	fakecorev1alpha1 "volcanoproj.org/volcano/pkg/client/clientset/versioned/typed/core/v1alpha1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.

@@ -19,11 +19,11 @@ limitations under the License.
 package fake
 
 import (
-	corev1alpha1 "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
+	corev1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
 )
 
 var scheme = runtime.NewScheme()

@@ -19,7 +19,7 @@ package algorithm
 import (
 	"volcanoproj.org/volcano/pkg/scheduler/algorithm/fairshare"
 
-	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/framework"
+	"github.com/kubernetes-sigs/kube-batch/pkg/scheduler/framework"
 )
 
 func init() {
