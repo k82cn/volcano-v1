@@ -16,7 +16,7 @@ limitations under the License.
 
 package fairshare
 
-import "github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/framework"
+import "github.com/kubernetes-sigs/kube-batch/pkg/scheduler/framework"
 
 type fairsharePlugin struct {
 	args *framework.PluginArgs

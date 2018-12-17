@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	v1alpha1 "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned/typed/core/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
+	v1alpha1 "volcanoproj.org/volcano/pkg/client/clientset/versioned/typed/core/v1alpha1"
 )
 
 type FakeCoreV1alpha1 struct {

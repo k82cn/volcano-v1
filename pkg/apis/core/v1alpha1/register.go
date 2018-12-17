@@ -28,7 +28,7 @@ var (
 )
 
 // GroupName is the group name used in this package.
-const GroupName = "core.k82cn.io"
+const GroupName = "core.volcanoproj.org"
 
 // SchemeGroupVersion is the group version used to register these objects.
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: "v1alpha1"}
