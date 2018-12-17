@@ -23,13 +23,13 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
-	core "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/core"
-	internalinterfaces "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
+	versioned "volcanoproj.org/volcano/pkg/client/clientset/versioned"
+	core "volcanoproj.org/volcano/pkg/client/informers/externalversions/core"
+	internalinterfaces "volcanoproj.org/volcano/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.

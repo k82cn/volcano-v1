@@ -23,8 +23,8 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 
-	vuclanapi "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
-	"github.com/projectvulcan/vulcan/pkg/apis/helpers"
+	vuclanapi "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	"volcanoproj.org/volcano/pkg/apis/helpers"
 )
 
 func (cc *Controller) addJob(obj interface{}) {
