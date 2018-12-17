@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apiserver/pkg/util/flag"
 
-	_ "github.com/projectvulcan/vulcan/pkg/scheduler/algorithm"
+	_ "volcanoproj.org/volcano/pkg/scheduler/algorithm"
 
 	"github.com/kubernetes-incubator/kube-arbitrator/cmd/kar-scheduler/app"
 	"github.com/kubernetes-incubator/kube-arbitrator/cmd/kar-scheduler/app/options"

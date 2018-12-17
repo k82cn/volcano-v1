@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
-	"github.com/projectvulcan/vulcan/pkg/client/clientset/versioned/scheme"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
+	v1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	"volcanoproj.org/volcano/pkg/client/clientset/versioned/scheme"
 )
 
 type CoreV1alpha1Interface interface {

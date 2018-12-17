@@ -17,7 +17,7 @@ limitations under the License.
 package algorithm
 
 import (
-	"github.com/projectvulcan/vulcan/pkg/scheduler/algorithm/fairshare"
+	"volcanoproj.org/volcano/pkg/scheduler/algorithm/fairshare"
 
 	"github.com/kubernetes-incubator/kube-arbitrator/pkg/scheduler/framework"
 )

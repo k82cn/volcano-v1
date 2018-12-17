@@ -19,7 +19,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	internalinterfaces "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/internalinterfaces"
+	internalinterfaces "volcanoproj.org/volcano/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

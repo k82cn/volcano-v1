@@ -21,14 +21,14 @@ package v1alpha1
 import (
 	time "time"
 
-	core_v1alpha1 "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
-	versioned "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
-	internalinterfaces "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/projectvulcan/vulcan/pkg/client/listers/core/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
+	core_v1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	versioned "volcanoproj.org/volcano/pkg/client/clientset/versioned"
+	internalinterfaces "volcanoproj.org/volcano/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "volcanoproj.org/volcano/pkg/client/listers/core/v1alpha1"
 )
 
 // JobInformer provides access to a shared informer and lister for

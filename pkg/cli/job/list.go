@@ -22,7 +22,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
+	"volcanoproj.org/volcano/pkg/client/clientset/versioned"
 )
 
 type listFlags struct {

@@ -36,12 +36,12 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
-	vuclanapi "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
-	"github.com/projectvulcan/vulcan/pkg/apis/helpers"
-	"github.com/projectvulcan/vulcan/pkg/client/clientset/versioned"
-	informersv1 "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions"
-	vulcanInformers "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/core/v1alpha1"
-	listersv1 "github.com/projectvulcan/vulcan/pkg/client/listers/core/v1alpha1"
+	vuclanapi "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	"volcanoproj.org/volcano/pkg/apis/helpers"
+	"volcanoproj.org/volcano/pkg/client/clientset/versioned"
+	informersv1 "volcanoproj.org/volcano/pkg/client/informers/externalversions"
+	vulcanInformers "volcanoproj.org/volcano/pkg/client/informers/externalversions/core/v1alpha1"
+	listersv1 "volcanoproj.org/volcano/pkg/client/listers/core/v1alpha1"
 )
 
 // Controller the QueueJob Controller type

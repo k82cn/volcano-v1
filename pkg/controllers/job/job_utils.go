@@ -25,8 +25,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	vulcanv1 "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
-	"github.com/projectvulcan/vulcan/pkg/apis/helpers"
+	vulcanv1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	"volcanoproj.org/volcano/pkg/apis/helpers"
 )
 
 // getStatus returns no of succeeded and failed pods running a job

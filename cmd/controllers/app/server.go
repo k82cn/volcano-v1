@@ -36,8 +36,8 @@ import (
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"k8s.io/client-go/tools/record"
 
-	"github.com/projectvulcan/vulcan/cmd/controllers/app/options"
-	"github.com/projectvulcan/vulcan/pkg/controllers/job"
+	"volcanoproj.org/volcano/cmd/controllers/app/options"
+	"volcanoproj.org/volcano/pkg/controllers/job"
 )
 
 const (

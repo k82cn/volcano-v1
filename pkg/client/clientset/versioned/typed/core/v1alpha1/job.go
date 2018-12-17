@@ -19,12 +19,12 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
-	scheme "github.com/projectvulcan/vulcan/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
+	v1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	scheme "volcanoproj.org/volcano/pkg/client/clientset/versioned/scheme"
 )
 
 // JobsGetter has a method to return a JobInterface.

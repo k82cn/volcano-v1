@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/uuid"
 
-	vulcanv1 "github.com/projectvulcan/vulcan/pkg/apis/core/v1alpha1"
+	vulcanv1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
 )
 
 var JobKind = vulcanv1.SchemeGroupVersion.WithKind("Job")

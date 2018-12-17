@@ -19,8 +19,8 @@ limitations under the License.
 package core
 
 import (
-	v1alpha1 "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/core/v1alpha1"
-	internalinterfaces "github.com/projectvulcan/vulcan/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "volcanoproj.org/volcano/pkg/client/informers/externalversions/core/v1alpha1"
+	internalinterfaces "volcanoproj.org/volcano/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to each of this group's versions.
