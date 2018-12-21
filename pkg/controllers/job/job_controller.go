@@ -36,21 +36,21 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
-	vuclanapi "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
+	vnapi "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
 	"volcanoproj.org/volcano/pkg/apis/helpers"
 	"volcanoproj.org/volcano/pkg/client/clientset/versioned"
 	informersv1 "volcanoproj.org/volcano/pkg/client/informers/externalversions"
-	vulcanInformers "volcanoproj.org/volcano/pkg/client/informers/externalversions/core/v1alpha1"
+	vninfo "volcanoproj.org/volcano/pkg/client/informers/externalversions/core/v1alpha1"
 	listersv1 "volcanoproj.org/volcano/pkg/client/listers/core/v1alpha1"
 )
 
-// Controller the QueueJob Controller type
+// Controller the Job Controller type
 type Controller struct {
 	config        *rest.Config
 	kubeClients   *kubernetes.Clientset
 	vuclanClients *versioned.Clientset
 
-	jobInformer vulcanInformers.JobInformer
+	jobInformer vninfo.JobInformer
 	podInformer coreinformers.PodInformer
 
 	// A store of jobs
@@ -108,9 +108,9 @@ func (cc *Controller) Run(stopCh <-chan struct{}) {
 
 func (cc *Controller) worker() {
 	if _, err := cc.eventQueue.Pop(func(obj interface{}) error {
-		var job *vuclanapi.Job
+		var job *vnapi.Job
 		switch v := obj.(type) {
-		case *vuclanapi.Job:
+		case *vnapi.Job:
 			job = v
 		case *v1.Pod:
 			jobs, err := cc.jobLister.List(labels.Everything())
@@ -153,7 +153,7 @@ func (cc *Controller) worker() {
 	}
 }
 
-func (cc *Controller) syncJob(qj *vuclanapi.Job) error {
+func (cc *Controller) syncJob(qj *vnapi.Job) error {
 	queueJob, err := cc.jobLister.Jobs(qj.Namespace).Get(qj.Name)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -171,7 +171,7 @@ func (cc *Controller) syncJob(qj *vuclanapi.Job) error {
 	return cc.manageJob(queueJob, pods)
 }
 
-func (cc *Controller) getPodsForJob(job *vuclanapi.Job) (map[string][]*v1.Pod, error) {
+func (cc *Controller) getPodsForJob(job *vnapi.Job) (map[string][]*v1.Pod, error) {
 	pods := map[string][]*v1.Pod{}
 
 	for _, ts := range job.Spec.TaskSpecs {
@@ -180,13 +180,13 @@ func (cc *Controller) getPodsForJob(job *vuclanapi.Job) (map[string][]*v1.Pod, e
 			return nil, fmt.Errorf("couldn't convert QueueJob selector: %v", err)
 		}
 
-		// List all pods under QueueJob
+		// List all pods under Job
 		ps, err := cc.podListr.Pods(job.Namespace).List(selector)
 		if err != nil {
 			return nil, err
 		}
 
-		// TODO (projectvulcan): optimic by cache
+		// TODO (k82cn): optimic by cache
 		for _, pod := range ps {
 			if !metav1.IsControlledBy(pod, job) {
 				continue
@@ -201,7 +201,7 @@ func (cc *Controller) getPodsForJob(job *vuclanapi.Job) (map[string][]*v1.Pod, e
 
 // manageJob is the core method responsible for managing the number of running
 // pods according to what is specified in the job.Spec.
-func (cc *Controller) manageJob(job *vuclanapi.Job, pods map[string][]*v1.Pod) error {
+func (cc *Controller) manageJob(job *vnapi.Job, pods map[string][]*v1.Pod) error {
 	var err error
 
 	runningSum := int32(0)
@@ -256,7 +256,7 @@ func (cc *Controller) manageJob(job *vuclanapi.Job, pods map[string][]*v1.Pod) e
 		}
 	}
 
-	job.Status = vuclanapi.JobStatus{
+	job.Status = vnapi.JobStatus{
 		Pending:      pendingSum,
 		Running:      runningSum,
 		Succeeded:    succeededSum,
@@ -264,7 +264,7 @@ func (cc *Controller) manageJob(job *vuclanapi.Job, pods map[string][]*v1.Pod) e
 		MinAvailable: int32(job.Spec.MinAvailable),
 	}
 
-	// TODO(projectvulcan): replaced it with `UpdateStatus`
+	// TODO(k82cn): replaced it with `UpdateStatus`
 	if _, err := cc.vuclanClients.CoreV1alpha1().Jobs(job.Namespace).Update(job); err != nil {
 		glog.Errorf("Failed to update status of QueueJob %v/%v: %v",
 			job.Namespace, job.Name, err)
