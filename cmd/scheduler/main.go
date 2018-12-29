@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apiserver/pkg/util/flag"
 
-	_ "volcanoproj.org/volcano/pkg/scheduler/algorithm"
+	_ "hpw.cloud/volcano/pkg/scheduler/algorithm"
 
 	"github.com/kubernetes-sigs/kube-batch/cmd/kube-batch/app"
 	"github.com/kubernetes-sigs/kube-batch/cmd/kube-batch/app/options"

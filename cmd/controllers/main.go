@@ -26,8 +26,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apiserver/pkg/util/flag"
 
-	"volcanoproj.org/volcano/cmd/controllers/app"
-	"volcanoproj.org/volcano/cmd/controllers/app/options"
+	"hpw.cloud/volcano/cmd/controllers/app"
+	"hpw.cloud/volcano/cmd/controllers/app/options"
 )
 
 var logFlushFreq = pflag.Duration("log-flush-frequency", 5*time.Second, "Maximum number of seconds between log flushes")

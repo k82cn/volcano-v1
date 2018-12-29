@@ -36,22 +36,28 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 
-	vnapi "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
-	"volcanoproj.org/volcano/pkg/apis/helpers"
-	"volcanoproj.org/volcano/pkg/client/clientset/versioned"
-	informersv1 "volcanoproj.org/volcano/pkg/client/informers/externalversions"
-	vninfo "volcanoproj.org/volcano/pkg/client/informers/externalversions/core/v1alpha1"
-	listersv1 "volcanoproj.org/volcano/pkg/client/listers/core/v1alpha1"
+	kbv1 "github.com/kubernetes-sigs/kube-batch/pkg/apis/scheduling/v1alpha1"
+	kbver "github.com/kubernetes-sigs/kube-batch/pkg/client/clientset/versioned"
+	kbinfo "github.com/kubernetes-sigs/kube-batch/pkg/client/informers/externalversions/scheduling/v1alpha1"
+
+	vnapi "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
+	"hpw.cloud/volcano/pkg/apis/helpers"
+	"hpw.cloud/volcano/pkg/client/clientset/versioned"
+	informersv1 "hpw.cloud/volcano/pkg/client/informers/externalversions"
+	vninfo "hpw.cloud/volcano/pkg/client/informers/externalversions/batch/v1alpha1"
+	listersv1 "hpw.cloud/volcano/pkg/client/listers/batch/v1alpha1"
 )
 
 // Controller the Job Controller type
 type Controller struct {
-	config        *rest.Config
-	kubeClients   *kubernetes.Clientset
-	vuclanClients *versioned.Clientset
+	config      *rest.Config
+	kubeClients *kubernetes.Clientset
+	vnClients   *versioned.Clientset
+	kbClients   *kbver.Clientset
 
 	jobInformer vninfo.JobInformer
 	podInformer coreinformers.PodInformer
+	pgInformer  kbinfo.PodGroupInformer
 
 	// A store of jobs
 	jobLister listersv1.JobLister
@@ -68,13 +74,14 @@ type Controller struct {
 // NewJobController create new QueueJob Controller
 func NewJobController(config *rest.Config) *Controller {
 	cc := &Controller{
-		config:        config,
-		kubeClients:   kubernetes.NewForConfigOrDie(config),
-		vuclanClients: versioned.NewForConfigOrDie(config),
-		eventQueue:    cache.NewFIFO(eventKey),
+		config:      config,
+		kubeClients: kubernetes.NewForConfigOrDie(config),
+		vnClients:   versioned.NewForConfigOrDie(config),
+		kbClients:   kbver.NewForConfigOrDie(config),
+		eventQueue:  cache.NewFIFO(eventKey),
 	}
 
-	cc.jobInformer = informersv1.NewSharedInformerFactory(cc.vuclanClients, 0).Core().V1alpha1().Jobs()
+	cc.jobInformer = informersv1.NewSharedInformerFactory(cc.vnClients, 0).Batch().V1alpha1().Jobs()
 	cc.jobInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc:    cc.addJob,
 		UpdateFunc: cc.updateJob,
@@ -153,22 +160,22 @@ func (cc *Controller) worker() {
 	}
 }
 
-func (cc *Controller) syncJob(qj *vnapi.Job) error {
-	queueJob, err := cc.jobLister.Jobs(qj.Namespace).Get(qj.Name)
+func (cc *Controller) syncJob(j *vnapi.Job) error {
+	job, err := cc.jobLister.Jobs(j.Namespace).Get(j.Name)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			glog.V(3).Infof("Job has been deleted: %v", qj.Name)
+			glog.V(3).Infof("Job has been deleted: %v", j.Name)
 			return nil
 		}
 		return err
 	}
 
-	pods, err := cc.getPodsForJob(queueJob)
+	pods, err := cc.getPodsForJob(job)
 	if err != nil {
 		return err
 	}
 
-	return cc.manageJob(queueJob, pods)
+	return cc.manageJob(job, pods)
 }
 
 func (cc *Controller) getPodsForJob(job *vnapi.Job) (map[string][]*v1.Pod, error) {
@@ -208,6 +215,10 @@ func (cc *Controller) manageJob(job *vnapi.Job, pods map[string][]*v1.Pod) error
 	pendingSum := int32(0)
 	succeededSum := int32(0)
 	failedSum := int32(0)
+
+	// Create PodGroup for Job
+	pg := &kbv1.PodGroup{}
+	pg.Spec.MinMember = job.Spec.MinAvailable
 
 	for _, ts := range job.Spec.TaskSpecs {
 		replicas := ts.Replicas
@@ -265,7 +276,7 @@ func (cc *Controller) manageJob(job *vnapi.Job, pods map[string][]*v1.Pod) error
 	}
 
 	// TODO(k82cn): replaced it with `UpdateStatus`
-	if _, err := cc.vuclanClients.CoreV1alpha1().Jobs(job.Namespace).Update(job); err != nil {
+	if _, err := cc.vnClients.BatchV1alpha1().Jobs(job.Namespace).Update(job); err != nil {
 		glog.Errorf("Failed to update status of QueueJob %v/%v: %v",
 			job.Namespace, job.Name, err)
 		return err

@@ -19,12 +19,12 @@ package job
 import (
 	"github.com/golang/glog"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 
-	vuclanapi "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
-	"volcanoproj.org/volcano/pkg/apis/helpers"
+	vuclanapi "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
+	"hpw.cloud/volcano/pkg/apis/helpers"
 )
 
 func (cc *Controller) addJob(obj interface{}) {
@@ -60,7 +60,7 @@ func (cc *Controller) deleteJob(obj interface{}) {
 func (cc *Controller) addPod(obj interface{}) {
 	pod, ok := obj.(*v1.Pod)
 	if !ok {
-		glog.Error("Failed to convert %v to v1.Pod", obj)
+		glog.Errorf("Failed to convert %v to v1.Pod", obj)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (cc *Controller) addPod(obj interface{}) {
 func (cc *Controller) updatePod(oldObj, newObj interface{}) {
 	pod, ok := newObj.(*v1.Pod)
 	if !ok {
-		glog.Error("Failed to convert %v to v1.Pod", newObj)
+		glog.Errorf("Failed to convert %v to v1.Pod", newObj)
 		return
 	}
 

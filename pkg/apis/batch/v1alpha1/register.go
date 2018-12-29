@@ -1,5 +1,5 @@
 /*
-Copyright 2017 The Vulcan Authors.
+Copyright 2017 The Volcano Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ var (
 )
 
 // GroupName is the group name used in this package.
-const GroupName = "core.volcanoproj.org"
+const GroupName = "core.hpw.cloud"
 
 // SchemeGroupVersion is the group version used to register these objects.
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: "v1alpha1"}

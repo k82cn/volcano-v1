@@ -19,12 +19,12 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1alpha1 "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
+	scheme "hpw.cloud/volcano/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
-	scheme "volcanoproj.org/volcano/pkg/client/clientset/versioned/scheme"
 )
 
 // JobsGetter has a method to return a JobInterface.
@@ -54,7 +54,7 @@ type jobs struct {
 }
 
 // newJobs returns a Jobs
-func newJobs(c *CoreV1alpha1Client, namespace string) *jobs {
+func newJobs(c *BatchV1alpha1Client, namespace string) *jobs {
 	return &jobs{
 		client: c.RESTClient(),
 		ns:     namespace,

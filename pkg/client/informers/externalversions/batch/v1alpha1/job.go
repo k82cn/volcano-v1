@@ -21,14 +21,14 @@ package v1alpha1
 import (
 	time "time"
 
+	batchv1alpha1 "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
+	versioned "hpw.cloud/volcano/pkg/client/clientset/versioned"
+	internalinterfaces "hpw.cloud/volcano/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "hpw.cloud/volcano/pkg/client/listers/batch/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
 	cache "k8s.io/client-go/tools/cache"
-	corev1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
-	versioned "volcanoproj.org/volcano/pkg/client/clientset/versioned"
-	internalinterfaces "volcanoproj.org/volcano/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "volcanoproj.org/volcano/pkg/client/listers/core/v1alpha1"
 )
 
 // JobInformer provides access to a shared informer and lister for
@@ -61,16 +61,16 @@ func NewFilteredJobInformer(client versioned.Interface, namespace string, resync
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.CoreV1alpha1().Jobs(namespace).List(options)
+				return client.BatchV1alpha1().Jobs(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.CoreV1alpha1().Jobs(namespace).Watch(options)
+				return client.BatchV1alpha1().Jobs(namespace).Watch(options)
 			},
 		},
-		&corev1alpha1.Job{},
+		&batchv1alpha1.Job{},
 		resyncPeriod,
 		indexers,
 	)
@@ -81,7 +81,7 @@ func (f *jobInformer) defaultInformer(client versioned.Interface, resyncPeriod t
 }
 
 func (f *jobInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&corev1alpha1.Job{}, f.defaultInformer)
+	return f.factory.InformerFor(&batchv1alpha1.Job{}, f.defaultInformer)
 }
 
 func (f *jobInformer) Lister() v1alpha1.JobLister {
