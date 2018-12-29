@@ -19,24 +19,24 @@ limitations under the License.
 package fake
 
 import (
+	v1alpha1 "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	testing "k8s.io/client-go/testing"
-	v1alpha1 "volcanoproj.org/volcano/pkg/apis/core/v1alpha1"
 )
 
 // FakeJobs implements JobInterface
 type FakeJobs struct {
-	Fake *FakeCoreV1alpha1
+	Fake *FakeBatchV1alpha1
 	ns   string
 }
 
-var jobsResource = schema.GroupVersionResource{Group: "", Version: "v1alpha1", Resource: "jobs"}
+var jobsResource = schema.GroupVersionResource{Group: "batch", Version: "v1alpha1", Resource: "jobs"}
 
-var jobsKind = schema.GroupVersionKind{Group: "", Version: "v1alpha1", Kind: "Job"}
+var jobsKind = schema.GroupVersionKind{Group: "batch", Version: "v1alpha1", Kind: "Job"}
 
 // Get takes name of the job, and returns the corresponding job object, and an error if there is any.
 func (c *FakeJobs) Get(name string, options v1.GetOptions) (result *v1alpha1.Job, err error) {

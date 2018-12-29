@@ -1,5 +1,5 @@
 {
-	"ImportPath": "volcanoproj.org/volcano",
+	"ImportPath": "hpw.cloud/volcano",
 	"GoVersion": "go1.11",
 	"GodepVersion": "v80",
 	"Packages": [

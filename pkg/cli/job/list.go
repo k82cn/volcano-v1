@@ -22,7 +22,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"volcanoproj.org/volcano/pkg/client/clientset/versioned"
+	"hpw.cloud/volcano/pkg/client/clientset/versioned"
 )
 
 type listFlags struct {
@@ -46,7 +46,7 @@ func ListJobs() error {
 	}
 
 	jobClient := versioned.NewForConfigOrDie(config)
-	jobs, err := jobClient.Core().Jobs(listJobFlags.Namespace).List(metav1.ListOptions{})
+	jobs, err := jobClient.Batch().Jobs(listJobFlags.Namespace).List(metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
