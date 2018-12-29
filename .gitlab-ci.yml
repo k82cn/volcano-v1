@@ -1,0 +1,12 @@
+stages:
+  - build
+  - test
+
+build_job:
+  stage: build
+  script: make 
+
+test_job:
+  stage: test
+  script: make e2e-test
+
