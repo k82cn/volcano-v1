@@ -38,7 +38,7 @@ import (
 
 	kbv1 "github.com/kubernetes-sigs/kube-batch/pkg/apis/scheduling/v1alpha1"
 	kbver "github.com/kubernetes-sigs/kube-batch/pkg/client/clientset/versioned"
-	kbinfo "github.com/kubernetes-sigs/kube-batch/pkg/client/informers/externalversions/scheduling/v1alpha1"
+	//	kbinfo "github.com/kubernetes-sigs/kube-batch/pkg/client/informers/externalversions"
 
 	vnapi "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
 	"hpw.cloud/volcano/pkg/apis/helpers"
@@ -57,7 +57,7 @@ type Controller struct {
 
 	jobInformer vninfo.JobInformer
 	podInformer coreinformers.PodInformer
-	pgInformer  kbinfo.PodGroupInformer
+	// pgInformer  kbinfov1.PodGroupInformer
 
 	// A store of jobs
 	jobLister listersv1.JobLister
@@ -99,6 +99,10 @@ func NewJobController(config *rest.Config) *Controller {
 
 	cc.podListr = cc.podInformer.Lister()
 	cc.podSynced = cc.podInformer.Informer().HasSynced
+
+	// cc.pgInformer = kbinfo.NewSharedInformerFactory(cc.kbClients).Scheduling().V1alpha1().PodGroups()
+	// cc.pgLister = cc.pgInformer.Lister()
+	// cc.pgSynced = cc.
 
 	return cc
 }
