@@ -18,5 +18,5 @@ install:
 
 script:
   - make
-  - make e2e
+  - make e2e-test
 
