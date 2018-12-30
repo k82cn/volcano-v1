@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	vulcanv1 "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
+	vkv1 "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
 	"hpw.cloud/volcano/pkg/apis/helpers"
 )
 
@@ -56,7 +56,7 @@ func eventKey(obj interface{}) (string, error) {
 	return string(accessor.GetUID()), nil
 }
 
-func createJobPod(qj *vulcanv1.Job, template *corev1.PodTemplateSpec, ix int32) *corev1.Pod {
+func createJobPod(qj *vkv1.Job, template *corev1.PodTemplateSpec, ix int32) *corev1.Pod {
 	templateCopy := template.DeepCopy()
 
 	prefix := fmt.Sprintf("%s-", qj.Name)

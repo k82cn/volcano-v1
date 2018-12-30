@@ -23,12 +23,12 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/client-go/tools/cache"
 
-	vuclanapi "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
+	vkapi "hpw.cloud/volcano/pkg/apis/batch/v1alpha1"
 	"hpw.cloud/volcano/pkg/apis/helpers"
 )
 
 func (cc *Controller) addJob(obj interface{}) {
-	job, ok := obj.(*vuclanapi.Job)
+	job, ok := obj.(*vkapi.Job)
 	if !ok {
 		glog.Errorf("obj is not Job")
 		return
@@ -38,7 +38,7 @@ func (cc *Controller) addJob(obj interface{}) {
 }
 
 func (cc *Controller) updateJob(oldObj, newObj interface{}) {
-	newJob, ok := newObj.(*vuclanapi.Job)
+	newJob, ok := newObj.(*vkapi.Job)
 	if !ok {
 		glog.Errorf("newObj is not Job")
 		return
@@ -48,7 +48,7 @@ func (cc *Controller) updateJob(oldObj, newObj interface{}) {
 }
 
 func (cc *Controller) deleteJob(obj interface{}) {
-	job, ok := obj.(*vuclanapi.Job)
+	job, ok := obj.(*vkapi.Job)
 	if !ok {
 		glog.Errorf("obj is not Job")
 		return
