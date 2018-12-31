@@ -122,6 +122,7 @@ const (
 	Restarting    JobPhase = "Restarting"
 	Completed     JobPhase = "Completed"
 	Failed        JobPhase = "Failed"
+	Error         JobPhase = "Error"
 	Unschedulable JobPhase = "Unschedulable"
 )
 

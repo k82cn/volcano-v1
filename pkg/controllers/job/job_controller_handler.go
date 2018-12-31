@@ -17,6 +17,8 @@ limitations under the License.
 package job
 
 import (
+	"reflect"
+
 	"github.com/golang/glog"
 
 	v1 "k8s.io/api/core/v1"
@@ -44,7 +46,15 @@ func (cc *Controller) updateJob(oldObj, newObj interface{}) {
 		return
 	}
 
-	cc.enqueue(newJob)
+	oldJob, ok := oldObj.(*vkapi.Job)
+	if !ok {
+		glog.Errorf("oldObj is not Job")
+		return
+	}
+
+	if !reflect.DeepEqual(oldJob.Spec, newJob.Spec) {
+		cc.enqueue(newJob)
+	}
 }
 
 func (cc *Controller) deleteJob(obj interface{}) {
