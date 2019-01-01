@@ -127,49 +127,49 @@ func (cc *Controller) Run(stopCh <-chan struct{}) {
 }
 
 func (cc *Controller) worker() {
-	if _, err := cc.eventQueue.Pop(func(obj interface{}) error {
-		var job *vkapi.Job
-		switch v := obj.(type) {
-		case *vkapi.Job:
-			job = v
-		case *v1.Pod:
-			jobs, err := cc.jobLister.List(labels.Everything())
-			if err != nil {
-				glog.Errorf("Failed to list Jobs for Pod %v/%v", v.Namespace, v.Name)
-			}
+	obj := cache.Pop(cc.eventQueue)
+	if obj == nil {
+		glog.Errorf("Fail to pop item from updateQueue")
+	}
 
-			ctl := helpers.GetController(v)
-			for _, j := range jobs {
-				if j.UID == ctl {
-					job = j
-					break
-				}
-			}
-
-		default:
-			glog.Errorf("Un-supported type of %v", obj)
-			return nil
+	var job *vkapi.Job
+	switch v := obj.(type) {
+	case *vkapi.Job:
+		job = v
+	case *v1.Pod:
+		jobs, err := cc.jobLister.List(labels.Everything())
+		if err != nil {
+			glog.Errorf("Failed to list Jobs for Pod %v/%v", v.Namespace, v.Name)
 		}
 
-		if job == nil {
-			if acc, err := meta.Accessor(obj); err != nil {
-				glog.Warningf("Failed to get Job for %v/%v", acc.GetNamespace(), acc.GetName())
+		// TODO(k82cn): select by UID instead of loop
+		ctl := helpers.GetController(v)
+		for _, j := range jobs {
+			if j.UID == ctl {
+				job = j
+				break
 			}
-
-			return nil
 		}
 
-		// sync Pods for a Job
-		if err := cc.syncJob(job); err != nil {
-			glog.Errorf("Failed to sync Job %s, err %#v", job.Name, err)
-			// If any error, requeue it.
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		glog.Errorf("Fail to pop item from updateQueue, err %#v", err)
+	default:
+		glog.Errorf("Un-supported type of %v", obj)
 		return
+	}
+
+	if job == nil {
+		if acc, err := meta.Accessor(obj); err != nil {
+			glog.Warningf("Failed to get Job for %v/%v", acc.GetNamespace(), acc.GetName())
+		}
+
+		return
+	}
+
+	// sync Pods for a Job
+	if err := cc.syncJob(job); err != nil {
+		glog.Errorf("Failed to sync Job %s, err %#v", job.Name, err)
+		// If any error, requeue it.
+		// TODO(k82cn): replace with RateLimteQueue
+		cc.eventQueue.Add(job)
 	}
 }
 
@@ -194,7 +194,7 @@ func (cc *Controller) syncJob(j *vkapi.Job) error {
 func (cc *Controller) getPodsForJob(job *vkapi.Job) (map[string][]*v1.Pod, error) {
 	pods := map[string][]*v1.Pod{}
 
-	// TODO (k82cn): optimic by cache
+	// TODO (k82cn): optimic by cache and index of ownew
 	ps, err := cc.podListr.Pods(job.Namespace).List(labels.Everything())
 	if err != nil {
 		return nil, err
@@ -231,6 +231,7 @@ func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error
 
 	glog.V(3).Infof("Start to manage job <%s/%s>", job.Namespace, job.Name)
 
+	// TODO(k82cn): add WebHook to validate job.
 	if err := validate(job); err != nil {
 		glog.Errorf("Failed to validate Job <%s/%s>: %v", job.Namespace, job.Name, err)
 	}
@@ -272,6 +273,7 @@ func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error
 		replicas := ts.Replicas
 		name := ts.Template.Name
 
+		// TODO(k82cn): the template name should be set in default func.
 		if len(name) == 0 {
 			name = vkapi.DefaultTaskSpec
 		}

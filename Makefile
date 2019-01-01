@@ -6,13 +6,13 @@ init:
 	mkdir -p ${BIN_DIR}
 
 controllers:
-	go build -o ${BIN_DIR}/vn-controllers ./cmd/controllers
+	go build -o ${BIN_DIR}/vk-controllers ./cmd/controllers
 
 scheduler:
-	go build -o ${BIN_DIR}/vn-scheduler ./cmd/scheduler
+	go build -o ${BIN_DIR}/vk-scheduler ./cmd/scheduler
 
 cli:
-	go build -o ${BIN_DIR}/vnctl ./cmd/cli
+	go build -o ${BIN_DIR}/vkctl ./cmd/cli
 
 generate-code:
 	go build -o ${BIN_DIR}/deepcopy-gen ./cmd/deepcopy-gen/
