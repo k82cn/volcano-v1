@@ -223,27 +223,16 @@ func (cc *Controller) getPodsForJob(job *vkapi.Job) (map[string][]*v1.Pod, error
 func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error {
 	var err error
 
+	if job.DeletionTimestamp != nil {
+		glog.Infof("Job <%s/%s> is terminating, skip management process.",
+			job.Namespace, job.Name)
+		return nil
+	}
+
 	glog.V(3).Infof("Start to manage job <%s/%s>", job.Namespace, job.Name)
 
 	if err := validate(job); err != nil {
 		glog.Errorf("Failed to validate Job <%s/%s>: %v", job.Namespace, job.Name, err)
-
-		/*
-			job.Status = vkapi.JobStatus{
-				Phase: vkapi.Error,
-			}
-
-			job.Status.Conditions = append(job.Status.Conditions, vkapi.JobCondition{})
-
-			// TODO(k82cn): replaced it with `UpdateStatus`
-			if _, err := cc.vkClients.BatchV1alpha1().Jobs(job.Namespace).Update(job); err != nil {
-				glog.Errorf("Failed to update status of Job %v/%v: %v",
-					job.Namespace, job.Name, err)
-				return err
-			}
-
-			return err
-		*/
 	}
 
 	runningSum := int32(0)
@@ -283,6 +272,10 @@ func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error
 		replicas := ts.Replicas
 		name := ts.Template.Name
 
+		if len(name) == 0 {
+			name = vkapi.DefaultTaskSpec
+		}
+
 		running := int32(filterPods(pods[name], v1.PodRunning))
 		pending := int32(filterPods(pods[name], v1.PodPending))
 		succeeded := int32(filterPods(pods[name], v1.PodSucceeded))
@@ -294,7 +287,7 @@ func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error
 		failedSum += failed
 
 		glog.V(3).Infof("There are %d pods of Job %s (%s): replicas %d, pending %d, running %d, succeeded %d, failed %d",
-			len(pods), job.Name, name, replicas, pending, running, succeeded, failed)
+			len(pods[name]), job.Name, name, replicas, pending, running, succeeded, failed)
 
 		// Create pod if necessary
 		if diff := replicas - pending - running - succeeded; diff > 0 {
@@ -307,7 +300,7 @@ func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error
 				go func(ix int32) {
 					defer wait.Done()
 					newPod := createJobPod(job, &ts.Template, ix)
-					_, err := cc.kubeClients.Core().Pods(newPod.Namespace).Create(newPod)
+					_, err := cc.kubeClients.CoreV1().Pods(newPod.Namespace).Create(newPod)
 					if err != nil {
 						// Failed to create Pod, wait a moment and then create it again
 						// This is to ensure all pods under the same Job created
@@ -315,6 +308,8 @@ func (cc *Controller) manageJob(job *vkapi.Job, pods map[string][]*v1.Pod) error
 						glog.Errorf("Failed to create pod %s for Job %s, err %#v",
 							newPod.Name, job.Name, err)
 						errs = append(errs, err)
+					} else {
+						glog.V(3).Infof("Create Task <%d> of Job <%s/%s>", ix, job.Namespace, job.Name)
 					}
 				}(i)
 			}
